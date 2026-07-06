@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>사방으로 퍼지는 사이버 고양이 행성 🌌</title>
+    <style>
+        /* 배경 및 기본 세팅 (어두운 네온/우주 테마) */
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+            overflow: hidden; /* 스크롤바 방지 */
+            font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
+            position: relative;
+        }
+
+        /* 타이틀 감싸는 컨테이너 스타일 */
+        .title-container {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center; /* 텍스트 중앙 정렬 */
+            user-select: none;
+            z-index: 1; /* 고양이보다 뒤에 위치 */
+            pointer-events: none;
+        }
+
+        /* 개별 h1 디자인 (야광 네온 효과) */
+        .title-container h1 {
+            color: #38bdf8;
+            font-size: 1.6rem;
+            text-shadow: 0 0 8px rgba(56, 189, 248, 0.6);
+            margin: 5px 0; /* 글자 사이의 위아래 간격 조절 */
+        }
+
+        /* --- 고양이 컨테이너 (정확한 absolute 좌표 이동) --- */
+        .cat-item {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 60px;
+            height: 80px; /* 말풍선 공간 확보 */
+            cursor: pointer;
+            z-index: 10;
+            user-select: none;
+            will-change: transform;
+            display: flex;
+            flex-direction: column; /* 말풍선이 위에, 고양이가 아래에 */
+            align-items: center;
+            justify-content: flex-end;
+        }
+
+        /* --- 고양이 그래픽 컨테이너 (말풍선 제외, 고양이만 좌우 반전) --- */
+        .cat-graphic-container {
+            position: relative;
+            width: 50px;
+            height: 38px;
+            will-change: transform;
+        }
+
+        /* 말풍선 스타일 (다크 모드에 어울리는 반투명 네온 스타일) */
+        .bubble {
+            background: rgba(15, 23, 42, 0.85);
+            border: 1px solid #818cf8;
+            padding: 4px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: bold;
+            color: #f8fafc;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+            display: none; /* 평소에는 숨김 */
+            white-space: nowrap;
+            margin-bottom: 8px; /* 고양이와 거리 두기 */
+            position: relative;
+            z-index: 11;
+        }
+
+        /* 말풍선 꼬리 */
+        .bubble::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-top: 5px solid rgba(15, 23, 42, 0.85);
+        }
+
+        /* --- CSS 고양이 디자인 --- */
+        .cat-body {
+            position: absolute;
+            width: 50px;
+            height: 38px;
+            border-radius: 20px 20px 15px 15px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+            background-color: #818cf8; 
+        }
+
+        /* 고양이 귀 (왼쪽, 오른쪽) */
+        .cat-body::before, .cat-body::after {
+            content: '';
+            position: absolute;
+            top: -6px;
+            width: 0;
+            height: 0;
+            border-left: 9px solid transparent;
+            border-right: 9px solid transparent;
+            border-bottom: 12px solid #818cf8; 
+        }
+        .cat-body::before { left: 4px; transform: rotate(-15deg); }
+        .cat-body::after { right: 4px; transform: rotate(15deg); }
+
+        /* 고양이 눈동자 (야광 빛 디자인) */
+        .cat-eye {
+            position: absolute;
+            top: 11px;
+            width: 6px;
+            height: 6px;
+            background-color: #0f172a;
+            border-radius: 50%;
+        }
+        .cat-eye.left { left: 12px; }
+        .cat-eye.right { right: 12px; }
+
+        /* 고양이 코 */
+        .cat-nose {
+            position: absolute;
+            top: 15px;
+            left: 22px;
+            width: 6px;
+            height: 4px;
+            background-color: #f43f5e;
+            border-radius: 50%;
+        }
+
+        /* 고양이 꼬리 */
+        .cat-tail {
+            position: absolute;
+            bottom: 4px;
+            right: -7px;
+            width: 14px;
+            height: 14px;
+            border: 5px solid #818cf8; 
+            border-radius: 50%;
+            border-left-color: transparent;
+            border-bottom-color: transparent;
+            transform: rotate(20deg);
+            animation: wag 0.6s infinite alternate ease-in-out;
+        }
+
+        /* 꼬리 흔들기 애니메이션 */
+        @keyframes wag {
+            0% { transform: rotate(10deg); }
+            100% { transform: rotate(30deg); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="title-container">
+        <h1>고양이들이 우주를 탐험 중... 🌌✨</h1>
+    </div>
+
+    <script>
+        // 사이버/네온 느낌의 고양이 색상칩 변경
+        const catColors = ['#818cf8', '#34d399', '#f472b6', '#fbbf24', '#22d3ee', '#a78bfa'];
+        const meows = ["워프!", "삐리비리..", "우주츄르?", "광속질주!", "지구인!", "성운식빵", "무중력 상태", "블랙홀꾹꾹"];
+        const NUM_CATS = 25; 
+        const cats = [];
+
+        function createCats() {
+            // 화면 크기를 정확히 가져옴
+            const screenWidth = window.innerWidth;
+            const screenHeight = window.innerHeight;
+
+            for (let i = 0; i < NUM_CATS; i++) {
+                const container = document.createElement('div');
+                container.className = 'cat-item';
+
+                // 말풍선 생성
+                const bubble = document.createElement('div');
+                bubble.className = 'bubble';
+                bubble.innerText = '야옹!';
+                container.appendChild(bubble);
+
+                // 고양이 그래픽 전용 컨테이너 (반전 전용)
+                const graphicContainer = document.createElement('div');
+                graphicContainer.className = 'cat-graphic-container';
+                container.appendChild(graphicContainer);
+
+                // 고양이 몸통
+                const body = document.createElement('div');
+                body.className = 'cat-body';
+                graphicContainer.appendChild(body);
+                
+                const randomColor = catColors[Math.floor(Math.random() * catColors.length)];
+                body.style.backgroundColor = randomColor;
+
+                const catIdClass = `cat-id-${i}`;
+                container.classList.add(catIdClass);
+                
+                const style = document.createElement('style');
+                style.innerHTML = `
+                    .${catIdClass} .cat-body::before, .${catIdClass} .cat-body::after { border-bottom-color: ${randomColor}; }
+                    .${catIdClass} .cat-tail { border-color: ${randomColor}; border-left-color: transparent; border-bottom-color: transparent; }
+                `;
+                document.head.appendChild(style);
+
+                const eyeLeft = document.createElement('div');
+                eyeLeft.className = 'cat-eye left';
+                const eyeRight = document.createElement('div');
+                eyeRight.className = 'cat-eye right';
+                const nose = document.createElement('div');
+                nose.className = 'cat-nose';
+                const tail = document.createElement('div');
+                tail.className = 'cat-tail';
+
+                body.appendChild(eyeLeft);
+                body.appendChild(eyeRight);
+                body.appendChild(nose);
+                body.appendChild(tail);
+
+                // 처음부터 화면 전체에 골고루 배치되도록 설정
+                const posX = Math.random() * (screenWidth - 60);
+                const posY = Math.random() * (screenHeight - 80);
+
+                container.style.transform = `translate(${posX}px, ${posY}px)`;
+                document.body.appendChild(container);
+
+                cats.push({
+                    el: container,
+                    graphicEl: graphicContainer,
+                    bubbleEl: bubble,
+                    x: posX,
+                    y: posY,
+                    targetX: posX,
+                    targetY: posY,
+                    speed: Math.random() * 1.5 + 1.2
+                });
+
+                container.addEventListener('click', () => interactWithCat(i));
+            }
+        }
+
+        // 목적지를 화면 전체 스케일로 다시 갱신
+        function setNextTarget(cat) {
+            cat.targetX = Math.random() * (window.innerWidth - 60);
+            cat.targetY = Math.random() * (window.innerHeight - 80);
+            setTimeout(() => setNextTarget(cat), Math.random() * 2500 + 1500);
+        }
+
+        function interactWithCat(index) {
+            const cat = cats[index];
+            const originalSpeed = cat.speed;
+            cat.speed = 8; 
+            cat.bubbleEl.innerText = "초광속 도약! 🚀";
+            cat.bubbleEl.style.display = 'block';
+
+            cat.targetX = Math.random() * (window.innerWidth - 60);
+            cat.targetY = Math.random() * (window.innerHeight - 80);
+
+            setTimeout(() => {
+                cat.speed = originalSpeed;
+                cat.bubbleEl.style.display = 'none';
+            }, 1200);
+        }
+
+        function animate() {
+            cats.forEach(cat => {
+                const dx = cat.targetX - cat.x;
+                const dy = cat.targetY - cat.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+
+                if (distance > 5) {
+                    cat.x += (dx / distance) * cat.speed;
+                    cat.y += (dy / distance) * cat.speed;
+
+                    // 경계값 튕김 보정 및 가두기
+                    if (cat.x < 0) cat.x = 0;
+                    if (cat.x > window.innerWidth - 60) cat.x = window.innerWidth - 60;
+                    if (cat.y < 0) cat.y = 0;
+                    if (cat.y > window.innerHeight - 80) cat.y = window.innerHeight - 80;
+
+                    // 전체 아이템은 똑바로 이동
+                    cat.el.style.transform = `translate(${cat.x}px, ${cat.y}px)`;
+
+                    // 고양이 몸통 그래픽 부분만 좌우반전 (글자는 영향 없음)
+                    if (dx > 0) {
+                        cat.graphicEl.style.transform = 'scaleX(-1)';
+                    } else {
+                        cat.graphicEl.style.transform = 'scaleX(1)';
+                    }
+                }
+
+                if (cat.bubbleEl.style.display !== 'block' && Math.random() < 0.001) {
+                    cat.bubbleEl.innerText = meows[Math.floor(Math.random() * meows.length)];
+                    cat.bubbleEl.style.display = 'block';
+                    setTimeout(() => cat.bubbleEl.style.display = 'none', 1500);
+                }
+            });
+
+            requestAnimationFrame(animate);
+        }
+
+        window.addEventListener('resize', () => {
+            cats.forEach(cat => {
+                if (cat.x > window.innerWidth - 60) cat.x = window.innerWidth - 60;
+                if (cat.y > window.innerHeight - 80) cat.y = window.innerHeight - 80;
+            });
+        });
+
+        createCats();
+        cats.forEach(setNextTarget);
+        animate();
+    </script>
+</body>
+</html>
