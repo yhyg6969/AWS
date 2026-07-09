@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AWS EC2 Cute Cat Gallery Demo</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="clouds-bg">
+        <div class="cloud cloud-1"></div>
+        <div class="cloud cloud-2"></div>
+        <div class="cloud cloud-3"></div>
+    </div>
+
+    <div class="container">
+        <header>
+            <div class="header-badge">
+                ☁️ AWS EC2 httpd WebServer Demo <span>v1.3.0</span>
+            </div>
+            <h1>🐾 우리집 삼냥이 갤러리</h1>
+            <p class="subtitle">용용이, 로미, 타비의 아기자기하고 귀여운 일상 공간에 오신 것을 환영합니다!</p>
+        </header>
+
+        <section class="cats-profiles">
+            <div class="profile-card yongyong" data-cat="용용">
+                <div class="avatar-wrapper">
+                    <img src="images/용용01.jpg" alt="용용이 프로필" class="profile-avatar">
+                    <div class="avatar-badge">🤎</div>
+                </div>
+                <h3>용용</h3>
+                <p class="profile-desc">"눈빛부터 남다른 첫째 갈색고양이 용용이. 시크하고 도도한 매력으로 집사를 들었다 놨다 해요."</p>
+                <div class="profile-tags">
+                    <span>#첫째냥</span>
+                    <span>#갈색고양이</span>
+                    <span>#시크도도</span>
+                </div>
+            </div>
+
+            <div class="profile-card romi" data-cat="로미">
+                <div class="avatar-wrapper">
+                    <img src="images/로미01.jpg" alt="로미 프로필" class="profile-avatar">
+                    <div class="avatar-badge">🤍</div>
+                </div>
+                <h3>로미</h3>
+                <p class="profile-desc">"새하얀 털을 뽐내는 둘째 흰고양이 로미. 삼냥이 중에서 가장 용감하고 씩씩한 대장부랍니다."</p>
+                <div class="profile-tags">
+                    <span>#둘째냥</span>
+                    <span>#흰고양이</span>
+                    <span>#제일용감</span>
+                </div>
+            </div>
+
+            <div class="profile-card tabi" data-cat="타비">
+                <div class="avatar-wrapper">
+                    <img src="images/타비01.jpg" alt="타비 프로필" class="profile-avatar">
+                    <div class="avatar-badge">💛</div>
+                </div>
+                <h3>타비</h3>
+                <p class="profile-desc">"매력적인 치즈 모색을 가진 막내 타비. 겁이 많고 소심하지만 누구보다 따뜻한 순둥이에요."</p>
+                <div class="profile-tags">
+                    <span>#막둥이</span>
+                    <span>#치즈고양이</span>
+                    <span>#소심쟁이</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="game-section">
+            <div class="game-container">
+                <div class="game-sidebar-left">
+                    <div class="score-board">
+                        <div class="score-box">
+                            <span class="score-title">🎯 CURRENT</span>
+                            <span id="currentScore" class="score-val">0</span>
+                        </div>
+                        <div class="score-box highlight">
+                            <span class="score-title">👑 BEST</span>
+                            <span id="bestScore" class="score-val">0</span>
+                        </div>
+                    </div>
+                    <div class="game-guide">
+                        <h4>🎮 플레이 방법</h4>
+                        <p>• <b>← / → 방향키</b> 또는 <b>마우스 이동</b>: 좌우 조작</p>
+                        <p>• <b>스페이스바</b> 또는 <b>마우스 클릭</b>: 낙하</p>
+                        <p>• 같은 고양이가 만나면 더 큰 고양이로 진화!</p>
+                        <button id="restartBtn" class="restart-btn">🔄 게임 다시 시작</button>
+                    </div>
+                </div>
+                
+                <div class="game-canvas-wrapper">
+                    <div id="gameOverScreen" class="game-overlay hidden">
+                        <div class="overlay-content">
+                            <h2>😿 GAME OVER</h2>
+                            <p>삼냥이들이 한계선을 넘어가 버렸어요!</p>
+                            <button id="modalRestartBtn" class="restart-btn">다시 도전하기</button>
+                        </div>
+                    </div>
+                    <canvas id="gameCanvas" width="400" height="600"></canvas>
+                </div>
+
+                <div class="game-sidebar-right">
+                    <h4>🧬 삼냥이 진화 순서</h4>
+                    <div class="evolution-chain">
+                        <div class="evo-step"><span class="evo-idx">1</span> <span class="evo-badge brown">🤎 용용01</span></div>
+                        <div class="evo-step"><span class="evo-idx">2</span> <span class="evo-badge white">🤍 로미01</span></div>
+                        <div class="evo-step"><span class="evo-idx">3</span> <span class="evo-badge yellow">💛 타비01</span></div>
+                        <div class="evo-step"><span class="evo-idx">4</span> <span class="evo-badge brown">🤎 용용02</span></div>
+                        <div class="evo-step"><span class="evo-idx">5</span> <span class="evo-badge white">🤍 로미02</span></div>
+                        <div class="evo-step"><span class="evo-idx">6</span> <span class="evo-badge yellow">💛 타비02</span></div>
+                        <div class="evo-step"><span class="evo-idx">7</span> <span class="evo-badge brown">🤎 용용03</span></div>
+                        <div class="evo-step"><span class="evo-idx">8</span> <span class="evo-badge yellow">💛 타비03</span></div>
+                        <div class="evo-step"><span class="evo-idx">9</span> <span class="evo-badge brown">🤎 용용04</span></div>
+                        <div class="evo-step"><span class="evo-idx">10</span> <span class="evo-badge white">🤍 로미04</span></div>
+                        <div class="evo-step"><span class="evo-idx">11</span> <span class="evo-badge yellow text-king">👑 타비04</span></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="filter-section">
+            <div class="filter-container">
+                <button class="filter-btn active" data-filter="all">🌟 전체보기</button>
+                <button class="filter-btn" data-filter="용용">🤎 용용이</button>
+                <button class="filter-btn" data-filter="로미">🤍 로미</button>
+                <button class="filter-btn" data-filter="타비">💛 타비</button>
+            </div>
+        </section>
+
+        <section class="gallery-section">
+            <div class="gallery-grid" id="galleryGrid">
+                </div>
+        </section>
+
+        <section class="ec2-metadata-section">
+            <div class="terminal-card">
+                <div class="terminal-header">
+                    <div class="terminal-buttons">
+                        <div class="terminal-btn t-close"></div>
+                        <div class="terminal-btn t-min"></div>
+                        <div class="terminal-btn t-max"></div>
+                    </div>
+                    <div class="terminal-title">
+                        <span>ℹ️ ec2-metadata-status</span>
+                    </div>
+                </div>
+                <div class="terminal-body">
+                    <div class="terminal-line">
+                        <span class="terminal-prompt">[ec2-user@aws-demo-instance ~]$</span>
+                        <span class="terminal-output">curl http://169.254.169.254/latest/meta-data/</span>
+                    </div>
+                    <div class="terminal-line">
+                        <span class="terminal-prompt">Fetching AWS EC2 Instance Metadata...</span>
+                    </div>
+                    
+                    <div class="metadata-grid">
+                        <div class="metadata-item">
+                            <span class="metadata-label">Instance ID</span>
+                            <span class="metadata-value" id="meta-instance-id">Loading...</span>
+                        </div>
+                        <div class="metadata-item">
+                            <span class="metadata-label">Availability Zone</span>
+                            <span class="metadata-value" id="meta-az">Loading...</span>
+                        </div>
+                        <div class="metadata-item">
+                            <span class="metadata-label">Public IP</span>
+                            <span class="metadata-value" id="meta-public-ip">Loading...</span>
+                        </div>
+                        <div class="metadata-item">
+                            <span class="metadata-label">Platform Server</span>
+                            <span class="metadata-value" id="meta-platform">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="lightbox" id="lightbox">
+            <button class="lightbox-close" id="lightboxClose">&times;</button>
+            <button class="lightbox-btn lightbox-prev" id="lightboxPrev">&#10094;</button>
+            <div class="lightbox-content">
+                <img class="lightbox-img" id="lightboxImg" src="" alt="확대 이미지">
+                <div class="lightbox-caption" id="lightboxCaption">고양이 사진</div>
+            </div>
+            <button class="lightbox-btn lightbox-next" id="lightboxNext">&#10095;</button>
+        </div>
+
+        <footer>
+            <p>Made with ❤️ for Yongyong, Romi, Tabi | AWS EC2 httpd WebServer Demo Page</p>
+        </footer>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

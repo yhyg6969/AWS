@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AWS EC2 & Apache httpd Demo Dashboard</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Background glow elements for rich aesthetics -->
+    <div class="bg-glow bg-glow-1"></div>
+    <div class="bg-glow bg-glow-2"></div>
+
+    <div class="app-container">
+        <!-- HEADER -->
+        <header class="main-header glass-panel">
+            <div class="header-logo-title">
+                <div class="logo-icon-wrapper">
+                    <i data-lucide="server" class="logo-icon text-aws-orange animate-pulse-slow"></i>
+                </div>
+                <div>
+                    <h1>AWS EC2 &amp; Apache httpd</h1>
+                    <p class="subtitle">Live Performance &amp; Access Log Demo Dashboard</p>
+                </div>
+            </div>
+
+            <!-- EC2 Meta Info Card -->
+            <div class="ec2-meta-info">
+                <div class="meta-item">
+                    <span class="meta-label">Instance ID</span>
+                    <span class="meta-value copyable" id="meta-instance-id" title="Click to copy">i-0be75f14bc3a4e98f</span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">Instance Type</span>
+                    <span class="meta-value">t3.medium</span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">Region</span>
+                    <span class="meta-value">ap-northeast-2</span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">Public IP</span>
+                    <span class="meta-value copyable" id="meta-public-ip" title="Click to copy">54.180.122.95</span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">Status</span>
+                    <span class="status-badge status-running" id="instance-status-badge">
+                        <span class="status-dot"></span> RUNNING
+                    </span>
+                </div>
+            </div>
+        </header>
+
+        <!-- MAIN LAYOUT -->
+        <main class="dashboard-grid">
+            
+            <!-- COLUMN 1: Real-time Metric Cards -->
+            <section class="metrics-container">
+                <!-- Card 1: CPU Usage -->
+                <div class="metric-card glass-panel" id="card-cpu">
+                    <div class="card-header">
+                        <span class="card-title">CPU Utilization</span>
+                        <i data-lucide="cpu" class="card-icon text-cyan"></i>
+                    </div>
+                    <div class="card-body">
+                        <div class="metric-value-wrapper">
+                            <span class="metric-value" id="val-cpu">0.0</span>
+                            <span class="metric-unit">%</span>
+                        </div>
+                        <!-- Progress Bar -->
+                        <div class="progress-track">
+                            <div class="progress-bar bg-cyan-gradient" id="bar-cpu" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 2: Memory Usage -->
+                <div class="metric-card glass-panel" id="card-mem">
+                    <div class="card-header">
+                        <span class="card-title">Memory Allocation</span>
+                        <i data-lucide="database" class="card-icon text-purple"></i>
+                    </div>
+                    <div class="card-body">
+                        <div class="metric-value-wrapper">
+                            <span class="metric-value" id="val-mem">0.0</span>
+                            <span class="metric-unit">%</span>
+                        </div>
+                        <div class="progress-track">
+                            <div class="progress-bar bg-purple-gradient" id="bar-mem" style="width: 0%"></div>
+                        </div>
+                        <div class="card-sub-info">
+                            <span id="val-mem-bytes">0.0 GB / 4.0 GB</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 3: Network Traffic -->
+                <div class="metric-card glass-panel" id="card-net">
+                    <div class="card-header">
+                        <span class="card-title">Network Throughput</span>
+                        <i data-lucide="activity" class="card-icon text-emerald"></i>
+                    </div>
+                    <div class="card-body">
+                        <div class="network-rates">
+                            <div class="net-rate-item">
+                                <i data-lucide="arrow-down-left" class="net-arrow text-emerald"></i>
+                                <div>
+                                    <div class="net-direction">Inbound</div>
+                                    <div class="net-value" id="val-net-in">0.0 KB/s</div>
+                                </div>
+                            </div>
+                            <div class="net-rate-item">
+                                <i data-lucide="arrow-up-right" class="net-arrow text-orange"></i>
+                                <div>
+                                    <div class="net-direction">Outbound</div>
+                                    <div class="net-value" id="val-net-out">0.0 KB/s</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 4: Apache httpd Status -->
+                <div class="metric-card glass-panel" id="card-httpd">
+                    <div class="card-header">
+                        <span class="card-title">Apache Service (httpd)</span>
+                        <i data-lucide="globe" class="card-icon text-aws-orange"></i>
+                    </div>
+                    <div class="card-body">
+                        <div class="service-status-row">
+                            <span class="status-badge status-active" id="httpd-status-badge">
+                                <span class="status-dot"></span> Active (running)
+                            </span>
+                            <span class="card-sub-info" id="val-httpd-uptime">Uptime: 00h 00m</span>
+                        </div>
+                        <div class="httpd-metrics">
+                            <div class="httpd-metric-item">
+                                <span class="label">Total Requests</span>
+                                <span class="value" id="val-httpd-reqs">0</span>
+                            </div>
+                            <div class="httpd-metric-item">
+                                <span class="label">Avg Response Time</span>
+                                <span class="value" id="val-httpd-latency">0 ms</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- COLUMN 2 & 3: Visual Analytics -->
+            <section class="charts-container">
+                <!-- Line Chart Card -->
+                <div class="chart-card glass-panel">
+                    <div class="chart-header">
+                        <div>
+                            <h3>Resource Monitor (Real-time)</h3>
+                            <p class="chart-subtitle">CPU &amp; Memory trends updated every second</p>
+                        </div>
+                        <div class="chart-legend">
+                            <span class="legend-item"><span class="legend-color bg-cyan"></span> CPU</span>
+                            <span class="legend-item"><span class="legend-color bg-purple"></span> Memory</span>
+                        </div>
+                    </div>
+                    <div class="chart-wrapper">
+                        <canvas id="realtimeResourceChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Doughnut Chart Card -->
+                <div class="chart-card glass-panel doughnut-card">
+                    <div class="chart-header">
+                        <h3>HTTP Status Code Distribution</h3>
+                        <p class="chart-subtitle">Request classification for apache access logs</p>
+                    </div>
+                    <div class="chart-wrapper doughnut-wrapper">
+                        <canvas id="httpdStatusChart"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <!-- COLUMN 4: Controls & Simulator Panel -->
+            <section class="controls-panel glass-panel">
+                <div class="panel-header">
+                    <i data-lucide="sliders" class="panel-icon text-aws-orange"></i>
+                    <h2>Control Center</h2>
+                </div>
+                
+                <div class="control-groups">
+                    <!-- Service Control -->
+                    <div class="control-group">
+                        <label class="control-label">Apache httpd Service</label>
+                        <div class="toggle-switch-wrapper">
+                            <span class="toggle-state-text" id="service-toggle-label">Running</span>
+                            <label class="switch">
+                                <input type="checkbox" id="btn-toggle-service" checked>
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                        <p class="control-desc">Start or stop the Apache web server service.</p>
+                    </div>
+
+                    <!-- Simulator Speed -->
+                    <div class="control-group">
+                        <label class="control-label">Request Generation Traffic</label>
+                        <div class="speed-buttons">
+                            <button class="speed-btn active" data-speed="normal">Normal</button>
+                            <button class="speed-btn" data-speed="fast">Spike</button>
+                            <button class="speed-btn" data-speed="pause">Pause</button>
+                        </div>
+                        <p class="control-desc">Simulate traffic patterns on the website.</p>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="control-actions">
+                        <button class="action-btn btn-secondary" id="btn-trigger-spike">
+                            <i data-lucide="zap" class="btn-icon"></i> Trigger Spike
+                        </button>
+                        <button class="action-btn btn-danger" id="btn-reboot">
+                            <i data-lucide="refresh-cw" class="btn-icon"></i> Reboot EC2
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ROW 3 (Full Width): Log Console -->
+            <section class="logs-container glass-panel">
+                <div class="log-header">
+                    <div class="log-title-area">
+                        <i data-lucide="terminal" class="log-icon text-emerald"></i>
+                        <h3>Apache Access Log Stream</h3>
+                        <span class="file-path">/var/log/httpd/access_log</span>
+                    </div>
+                    <div class="log-actions">
+                        <button class="log-btn" id="btn-copy-logs" title="Copy visible logs">
+                            <i data-lucide="copy" class="log-btn-icon"></i> Copy
+                        </button>
+                        <button class="log-btn" id="btn-clear-logs" title="Clear terminal screen">
+                            <i data-lucide="trash-2" class="log-btn-icon"></i> Clear
+                        </button>
+                    </div>
+                </div>
+                <div class="terminal-body" id="log-terminal">
+                    <!-- Logs will be prepended or appended here via js -->
+                    <div class="terminal-line system-line">[SYSTEM] Terminal initialized. Awaiting Apache stream...</div>
+                </div>
+            </section>
+
+        </main>
+
+        <!-- FOOTER -->
+        <footer class="main-footer">
+            <p>AWS EC2 httpd Web Dashboard Demo &bull; Crafted with Antigravity</p>
+            <p class="footer-note">This is a fully dynamic simulated environment suitable for staging/demo environments.</p>
+        </footer>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="toast hidden">
+        <i data-lucide="info" class="toast-icon"></i>
+        <span class="toast-message">Notification message here</span>
+    </div>
+
+    <!-- Scripts -->
+    <script src="app.js"></script>
+    <script>
+        // Initialize Lucide icons on page load
+        lucide.createIcons();
+    </script>
+</body>
+</html>
